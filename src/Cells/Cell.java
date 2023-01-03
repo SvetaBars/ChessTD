@@ -11,8 +11,14 @@ public class Cell extends JPanel {
         x = _x;
         y = _y;
 
-        setBackground(is_black() ? new Color(55,55,88) : new Color(180,220,255));
+        setBackground(is_black() ? getBlack() : getWhite());
         setBounds(x*size,y*size,size,size);
+    }
+    public Color getBlack(){
+        return new Color(55,55,88);
+    }
+    public Color getWhite(){
+        return new Color(180,220,255);
     }
 
     protected boolean is_black() {

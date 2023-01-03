@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class Figure extends JPanel {
-    int x,y;
+    protected int x,y;
     public Figure(int _x, int _y) {
         x = _x;
         y = _y;
@@ -16,7 +16,7 @@ public class Figure extends JPanel {
         setLayout(null);
         setBackground(new Color(0,0,0,0));
         try {
-            BufferedImage img = ImageIO.read(new File("images/white_pawn.png"));
+            BufferedImage img = ImageIO.read(new File("images/"+ GetImageName()+".png"));
             JLabel pic = new JLabel(new ImageIcon(img));
             pic.setBounds(0,0,Cells.Cell.size,Cells.Cell.size);
             add(pic);
@@ -26,7 +26,7 @@ public class Figure extends JPanel {
         }
     }
 
-    public void moveTo(int _x, int _y) {
+    public void MoveTo(int _x, int _y) {
         final int animationTime = 500;
         int framesPerSecond = 60;
         int delay = 1000 / framesPerSecond;
@@ -49,5 +49,9 @@ public class Figure extends JPanel {
             }
         });
         t.start();
+    }
+
+    public String GetImageName() {
+        return "";
     }
 }
