@@ -1,19 +1,14 @@
 package Figures;
 
-import Cells.Cell;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 public class Figure extends JPanel {
     int x,y;
-
     public Figure(int _x, int _y) {
         x = _x;
         y = _y;
@@ -32,19 +27,25 @@ public class Figure extends JPanel {
     }
 
     public void moveTo(int _x, int _y) {
-        Timer t = new Timer(1, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int cx = getX();
-                int cy = getY();
-                if(_x!=0) cx += cx<_x*Cells.Cell.size?1:-1;
-                if(_y!=0) cy += cy<_y*Cells.Cell.size?1:-1;
+        final int animationTime = 500;
+        int framesPerSecond = 60;
+        int delay = 1000 / framesPerSecond;
+        final long start = System.currentTimeMillis();
+        int cx = getX();
+        int cy = getY();
+        int dx = (_x*Cells.Cell.size-cx);
+        int dy = (_y*Cells.Cell.size-cy);
+        Timer t = new Timer(delay, e -> {
+            final long now = System.currentTimeMillis();
+            final long elapsed = now - start;
+            float progress = (float) elapsed / animationTime;
+            setLocation( (int)(cx+dx*progress),(int)(cy+dy*progress));
 
-                setBounds(cx,cy,Cells.Cell.size,Cells.Cell.size);
-
-                if(cx==_x*Cells.Cell.size && cy==_y*Cells.Cell.size) {
-                    ((Timer)e.getSource()).stop();
-                }
+            if(progress>=1) {
+                x = _x;
+                y = _y;
+                ((Timer)e.getSource()).stop();
+                setBounds(x*Cells.Cell.size,y*Cells.Cell.size,Cells.Cell.size,Cells.Cell.size);
             }
         });
         t.start();

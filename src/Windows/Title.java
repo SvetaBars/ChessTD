@@ -1,10 +1,7 @@
 package Windows;
 
 import javax.swing.*;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 
 public class Title extends JFrame {
     public Title() {
@@ -14,20 +11,18 @@ public class Title extends JFrame {
         BoxLayout boxlayout = new BoxLayout(panel, BoxLayout.Y_AXIS);
         panel.setLayout(boxlayout);
         JLabel header = new JLabel("Chess TD", SwingConstants.CENTER);
-        header.setVerticalAlignment(JLabel.TOP);
+        header.setAlignmentX(Component.CENTER_ALIGNMENT);
         header.setForeground(Color.RED);
         header.setFont(new Font("Serif", Font.PLAIN, 24));
         panel.add(header);
         JButton start = new JButton("Start");
         start.setVerticalAlignment(JButton.BOTTOM);
         start.setFont(new Font("Serif", Font.PLAIN, 24));
+        start.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        start.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setVisible(false);
-                Windows.Board board = new Windows.Board();
-            }
+        start.addActionListener(e -> {
+            setVisible(false);
+            new Board();
         });
 
         panel.add(start);
