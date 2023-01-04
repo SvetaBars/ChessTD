@@ -1,6 +1,5 @@
 package Figures.Towers;
 
-import Cells.Cell;
 import Cells.Road;
 import Figures.Enemies.Enemy;
 import Figures.Figure;
@@ -10,6 +9,7 @@ import java.awt.*;
 
 public class Tower extends Figure {
     Enemy attacked_enemy;
+    int saved_x, saved_y;
     protected int[][] attack_matrix;
     public Tower(Board board, int x, int y){
         super(board, x, y);
@@ -19,7 +19,7 @@ public class Tower extends Figure {
     public String GetImageName() {
         return "white_"+getClass().getSimpleName().toLowerCase();
     }
-    public Point FindEnemy(int x, int y, Point fixed){
+    public Point FindEnemy(int x, int y){
         for (int[] xy : attack_matrix){
             int new_x = x + xy[0];
             int new_y = y + xy[1];
@@ -30,15 +30,17 @@ public class Tower extends Figure {
         return null;
     }
     public void Attack(){
-        Point point = FindEnemy(x, y, null);
+        Point point = FindEnemy(x, y);
         if(point != null) {
+            saved_x = x;
+            saved_y = y;
             MoveTo(point.x,point.y);
             attacked_enemy = (Enemy)board.cells[point.x][point.y].figure;
         }
     }
     public void FallBack(){
         if(attacked_enemy != null) {
-            MoveTo(x, y);
+            MoveTo(saved_x, saved_y);
             board.KillEnemy(attacked_enemy);
             attacked_enemy = null;
         }

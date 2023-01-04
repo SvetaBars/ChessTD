@@ -17,14 +17,14 @@ public class Enemy extends Figure {
         return "black_"+getClass().getSimpleName().toLowerCase();
     }
     public void Step(){
-        Point point = FindMove(x, y, null);
+        Point point = FindMove(x, y);
         if(point != null) {
             board.cells[x][y].figure = null;
             board.cells[point.x][point.y].figure = this;
             MoveTo(point.x,point.y);
         }
     }
-    public Point FindMove(int x, int y, Point fixed){
+    public Point FindMove(int x, int y){
         int current_distance = 239;
         Point result = null;
 

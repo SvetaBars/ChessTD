@@ -31,8 +31,8 @@ public class Figure extends JPanel {
     }
 
     public void MoveTo(int _x, int _y) {
-        final int animationTime = 500;
-        int framesPerSecond = 60;
+        final int animationTime = 100;
+        int framesPerSecond = 30;
         int delay = 1000 / framesPerSecond;
         final long start = System.currentTimeMillis();
         int cx = getX();
@@ -49,7 +49,7 @@ public class Figure extends JPanel {
                 x = _x;
                 y = _y;
                 ((Timer)e.getSource()).stop();
-                setBounds(x*Cells.Cell.size,y*Cells.Cell.size,Cells.Cell.size,Cells.Cell.size);
+                setLocation(x*Cells.Cell.size,y*Cells.Cell.size);
             }
         });
         t.start();

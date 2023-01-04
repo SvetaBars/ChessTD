@@ -13,8 +13,8 @@ public class Board extends JFrame {
     JLayeredPane pane;
     int phase;
     public Board() {
-        enemies = new ArrayList<Enemy>();
-        towers = new ArrayList<Tower>();
+        enemies = new ArrayList<>();
+        towers = new ArrayList<>();
         setSize(640, 480);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         pane = new JLayeredPane();
@@ -43,7 +43,7 @@ public class Board extends JFrame {
         pane.add(f,1);
         towers.add(f);
         Enemy g = new Figures.Enemies.Pawn(this,7,8);
-        pane.add(g,1);
+        pane.add(g,2);
         enemies.add(g);
         cells[7][8].figure=g;
     }
