@@ -7,10 +7,11 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 public class Board extends JFrame {
-    Cells.Cell[][] cells;
+    public Cells.Cell[][] cells;
     ArrayList<Enemy> enemies;
     ArrayList<Tower> towers;
     JLayeredPane pane;
+    int phase;
     public Board() {
         enemies = new ArrayList<Enemy>();
         towers = new ArrayList<Tower>();
@@ -38,26 +39,45 @@ public class Board extends JFrame {
                 pane.add(cells[x][y]);
             }
 
-        Tower f = new Figures.Towers.Pawn(6,0);
+        Tower f = new Figures.Towers.Pawn(this,6,5);
         pane.add(f,1);
         towers.add(f);
-        Enemy g = new Figures.Enemies.Pawn(7,8);
+        Enemy g = new Figures.Enemies.Pawn(this,7,8);
         pane.add(g,1);
         enemies.add(g);
+        cells[7][8].figure=g;
     }
 
     public void run() {
-        new Timer(1000, e -> {
-            MoveEnemies();
-            FireTowers();
+        phase = 0;
+        new Timer(500, e -> {
+            if(phase == 0) {
+                FallBackTowers();
+                MoveEnemies();
+            }
+            else
+                FireTowers();
+            phase = (phase+1)%2;
         }).start();
     }
     public void MoveEnemies() {
         for(Enemy e: enemies) {
-            e.Step(cells);
+            e.Step();
         }
     }
     public void FireTowers() {
-
+        for(Tower t: towers) {
+            t.Attack();
+        }
+    }
+    public void FallBackTowers() {
+        for(Tower t: towers) {
+            t.FallBack();
+        }
+    }
+    public void KillEnemy(Enemy e) {
+        cells[e.x][e.y].figure = null;
+        pane.remove(e);
+        enemies.remove(e);
     }
 }

@@ -1,11 +1,14 @@
 package Cells;
 
+import Figures.Figure;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class Cell extends JPanel {
     int x,y;
     public static int size = 40;
+    public Figure figure;
 
     public Cell(int _x, int _y) {
         x = _x;

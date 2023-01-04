@@ -1,5 +1,7 @@
 package Figures;
 
+import Windows.Board;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -8,10 +10,12 @@ import java.io.File;
 import java.io.IOException;
 
 public class Figure extends JPanel {
-    protected int x,y;
-    public Figure(int _x, int _y) {
-        x = _x;
-        y = _y;
+    public int x,y;
+    protected Board board;
+    public Figure(Board board, int x, int y) {
+        this.board = board;
+        this.x = x;
+        this.y = y;
         setBounds(x*Cells.Cell.size,y*Cells.Cell.size,Cells.Cell.size,Cells.Cell.size);
         setLayout(null);
         setBackground(new Color(0,0,0,0));
