@@ -11,9 +11,7 @@ public class Tower extends Figure {
     Enemy attacked_enemy;
     int saved_x, saved_y;
     protected int[][] attack_matrix;
-    public Tower(Board board, int x, int y){
-        super(board, x, y);
-    }
+    public Tower(Board board, int x, int y, boolean can_move_futher){super(board, x, y, can_move_futher);}
 
     @Override
     public String GetImageName() {

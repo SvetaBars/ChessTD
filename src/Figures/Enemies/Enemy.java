@@ -8,8 +8,8 @@ import java.awt.Point;
 
 public class Enemy extends Figure {
     protected int[][] move_matrix;
-    public Enemy(Board board, int x, int y){
-        super(board, x, y);
+    public Enemy(Board board, int x, int y, boolean can_move_futher){
+        super(board, x, y, can_move_futher);
     }
 
     @Override

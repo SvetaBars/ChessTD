@@ -12,10 +12,12 @@ import java.io.IOException;
 public class Figure extends JPanel {
     public int x,y;
     protected Board board;
-    public Figure(Board board, int x, int y) {
+    protected boolean can_move_futher;
+    public Figure(Board board, int x, int y, boolean can_move_futher) {
         this.board = board;
         this.x = x;
         this.y = y;
+        this.can_move_futher = can_move_futher;
         setBounds(x*Cells.Cell.size,y*Cells.Cell.size,Cells.Cell.size,Cells.Cell.size);
         setLayout(null);
         setBackground(new Color(0,0,0,0));
