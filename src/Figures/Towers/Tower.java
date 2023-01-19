@@ -17,8 +17,11 @@ public class Tower extends Figure {
     public String GetImageName() {
         return "white_"+getClass().getSimpleName().toLowerCase();
     }
-    public Point FindEnemy(int x, int y){
+    public Point FindEnemy(int x, int y, int[] fixed){
         for (int[] xy : attack_matrix){
+            if ((fixed!=null) && (fixed[0]!=xy[0] || fixed[1]!=xy[1])){
+                continue;
+            }
             int new_x = x + xy[0];
             int new_y = y + xy[1];
             if (new_x>=0 && new_y>=0 && new_x<board.cells.length && new_y<board.cells[0].length && board.cells[new_x][new_y].figure != null && board.cells[new_x][new_y] instanceof Road) {
@@ -28,7 +31,7 @@ public class Tower extends Figure {
         return null;
     }
     public void Attack(){
-        Point point = FindEnemy(x, y);
+        Point point = FindEnemy(x, y, null);
         if(point != null) {
             saved_x = x;
             saved_y = y;
