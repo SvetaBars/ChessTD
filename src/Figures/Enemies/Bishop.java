@@ -3,9 +3,10 @@ package Figures.Enemies;
 import Windows.Board;
 
 public class Bishop extends Enemy{
-    public Bishop(Board board, int x, int y, boolean can_move_futher) {
-        super(board,x,y, can_move_futher);
-        can_move_futher = true;
+    public Bishop(Board board, int x, int y) {
+        super(board,x,y);
+        cost = 3;
+        can_move_further = true;
         move_matrix = new int[][] {{1, 1}, {-1, -1}, {-1, 1}, {1, -1}};
     }
 }

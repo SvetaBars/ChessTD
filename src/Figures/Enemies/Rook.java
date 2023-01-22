@@ -3,10 +3,10 @@ package Figures.Enemies;
 import Windows.Board;
 
 public class Rook extends Enemy{
-    public Rook(Board board, int x, int y, boolean can_move_futher) {
-        super(board,x,y, can_move_futher);
-        can_move_futher = true;
-
-        move_matrix = new int[][] {{0, 1}, {-1, 0}, {0, 1}, {0, -1}};
+    public Rook(Board board, int x, int y) {
+        super(board, x ,y);
+        can_move_further = true;
+        cost = 5;
+        move_matrix = new int[][] {{0, 1}, {-1, 0}, {0, -1}, {1, 0}};
     }
 }

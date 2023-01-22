@@ -12,15 +12,16 @@ import java.io.IOException;
 public class Figure extends JPanel {
     public int x,y;
     protected Board board;
-    protected boolean can_move_futher;
-    public Figure(Board board, int x, int y, boolean can_move_futher) {
+    protected boolean can_move_further;
+    public Figure(Board board, int x, int y) {
         this.board = board;
         this.x = x;
         this.y = y;
-        this.can_move_futher = can_move_futher;
+        this.can_move_further = false;
         setBounds(x*Cells.Cell.size,y*Cells.Cell.size,Cells.Cell.size,Cells.Cell.size);
         setLayout(null);
         setBackground(new Color(0,0,0,0));
+        setOpaque(false);
         try {
             BufferedImage img = ImageIO.read(new File("images/"+ GetImageName()+".png"));
             JLabel pic = new JLabel(new ImageIcon(img));
@@ -32,7 +33,15 @@ public class Figure extends JPanel {
         }
     }
 
-    public void MoveTo(int _x, int _y) {
+    public void MoveTo(int _x, int _y, boolean real_move) {
+        if(real_move) {
+            if(board.cells[x][y].figure == this)
+                board.cells[x][y].figure = null;
+            x = _x;
+            y = _y;
+            board.cells[x][y].figure = this;
+        }
+
         final int animationTime = 100;
         int framesPerSecond = 30;
         int delay = 1000 / framesPerSecond;
@@ -48,10 +57,8 @@ public class Figure extends JPanel {
             setLocation( (int)(cx+dx*progress),(int)(cy+dy*progress));
 
             if(progress>=1) {
-                x = _x;
-                y = _y;
                 ((Timer)e.getSource()).stop();
-                setLocation(x*Cells.Cell.size,y*Cells.Cell.size);
+                setLocation(_x*Cells.Cell.size,_y*Cells.Cell.size);
             }
         });
         t.start();
