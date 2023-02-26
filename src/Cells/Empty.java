@@ -1,5 +1,6 @@
 package Cells;
 
+import Figures.Towers.Tower;
 import Windows.Board;
 
 import java.awt.event.MouseEvent;
@@ -20,6 +21,9 @@ public class Empty extends Cell implements MouseListener {
             board.cells[x][y].figure = board.adding;
             board.towers.add(board.adding);
             board.adding = null;
+        }
+        if(this.figure != null){
+            board.ShowTowerProperties((Tower) this.figure);
         }
     }
 

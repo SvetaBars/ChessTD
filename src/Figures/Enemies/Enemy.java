@@ -8,7 +8,7 @@ import java.awt.*;
 
 public class Enemy extends Figure {
     protected int[][] move_matrix;
-    int cost;
+    public int cost;
     public Enemy(Board board, int x, int y){
         super(board, x, y);
     }

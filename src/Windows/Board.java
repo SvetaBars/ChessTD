@@ -40,6 +40,7 @@ public class Board extends JFrame {
     static final Integer CELLS_LAYER = 0;
     static final Integer ENEMIES_LAYER = 1;
     static final Integer TOWERS_LAYER = 2;
+    static final Integer PROPS_LAYER = 3;
     int phase;
     boolean paused;
     public Board(Title title, JsonObject level) {
@@ -236,6 +237,7 @@ public class Board extends JFrame {
         cells[e.x][e.y].figure = null;
         pane.remove(e);
         enemies.remove(e);
+        money+=e.cost;
     }
 
     public Boolean CellIsValid(int x, int y) {
@@ -253,5 +255,20 @@ public class Board extends JFrame {
         lives_label.setText(String.format("Lives: %d", lives));
         money_label.setText(String.format("Money: %d", money));
         wave_label.setText(String.format("Wave: %d/%d", current_wave+1, level.getJsonArray("waves").size()));
+    }
+    public void ShowTowerProperties(Tower t){
+        JPanel props = new JPanel();
+        props.setSize(150, 50);
+        JLabel props_label = new JLabel();
+        JButton props_button = new JButton();
+        props.add(props_label);
+        props.add(props_button);
+        pane.add(props, PROPS_LAYER);
+        props_button.addActionListener(e -> {
+            towers.remove(t);
+            pane.remove(t);
+            cells[t.x][t.y].figure = null;
+            money+=t.cost;
+        });
     }
 }

@@ -12,7 +12,7 @@ import java.awt.*;
 public class Tower extends Figure {
     int cooldown;
     int current_cooldown;
-    int cost;
+    public int cost;
     Enemy attacked_enemy;
     protected int[][] attack_matrix;
     public Tower(Board board, int x, int y){
