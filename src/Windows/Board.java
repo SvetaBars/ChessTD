@@ -234,6 +234,7 @@ public class Board extends JFrame {
         }
     }
     public void KillEnemy(Enemy e) {
+        e.setVisible(false);
         cells[e.x][e.y].figure = null;
         pane.remove(e);
         enemies.remove(e);
@@ -245,6 +246,7 @@ public class Board extends JFrame {
     }
 
     public void ReachedCastle(Enemy e) {
+        e.setVisible(false);
         cells[e.x][e.y].figure = null;
         pane.remove(e);
         cells[e.x][e.y].revalidate();
@@ -256,19 +258,28 @@ public class Board extends JFrame {
         money_label.setText(String.format("Money: %d", money));
         wave_label.setText(String.format("Wave: %d/%d", current_wave+1, level.getJsonArray("waves").size()));
     }
-    public void ShowTowerProperties(Tower t){
+
+    public void ShowTowerProperties(Tower tower) {
         JPanel props = new JPanel();
-        props.setSize(150, 50);
-        JLabel props_label = new JLabel();
-        JButton props_button = new JButton();
-        props.add(props_label);
-        props.add(props_button);
-        pane.add(props, PROPS_LAYER);
-        props_button.addActionListener(e -> {
-            towers.remove(t);
-            pane.remove(t);
-            cells[t.x][t.y].figure = null;
-            money+=t.cost;
+        props.add(new JLabel(tower.getClass().getSimpleName()));
+        JButton sell = new JButton("Sell");
+        sell.addActionListener(e -> {
+            props.setVisible(false);
+            tower.setVisible(false);
+            money += tower.cost;
+            cells[tower.x][tower.y].figure = null;
+            towers.remove(tower);
+            pane.remove(tower);
+            pane.remove(props);
         });
+        props.add(sell);
+        int x = (tower.x+1)*Cell.size;
+        int y = (tower.y+1)*Cell.size;
+        props.setSize(150,50);
+        if(x+props.getWidth() > pane.getWidth()) x=pane.getWidth()-props.getWidth();
+        if(y+props.getHeight() > pane.getHeight()) y=pane.getHeight()-props.getHeight();
+        props.setLocation(x,y);
+        props.setVisible(true);
+        pane.add(props, PROPS_LAYER);
     }
 }

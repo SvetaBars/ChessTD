@@ -22,9 +22,8 @@ public class Empty extends Cell implements MouseListener {
             board.towers.add(board.adding);
             board.adding = null;
         }
-        if(this.figure != null){
-            board.ShowTowerProperties((Tower) this.figure);
-        }
+        else if(this.figure!=null)
+            board.ShowTowerProperties((Tower)this.figure);
     }
 
     public void mouseReleased(MouseEvent e) {
