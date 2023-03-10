@@ -1,5 +1,6 @@
 package Figures.Towers;
 
+import Cells.Cell;
 import Cells.Empty;
 import Cells.Road;
 import Cells.Spawn;
@@ -8,6 +9,7 @@ import Figures.Figure;
 import Windows.Board;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Tower extends Figure {
     int cooldown;
@@ -68,5 +70,16 @@ public class Tower extends Figure {
             board.KillEnemy(attacked_enemy);
             attacked_enemy = null;
         }
+    }
+    public ArrayList<Cell> CanAttack(Tower t){
+        ArrayList<Cell> can_attack = new ArrayList<Cell>();
+        for (int[] xy : attack_matrix){
+            int new_x = t.x+xy[0];
+            int new_y = t.y+xy[1];
+            if(board.cells[new_x][new_y] instanceof Road && !(board.cells[new_x][new_y] instanceof Spawn)) {
+                can_attack.add(board.cells[new_x][new_y]);
+            }
+        }
+        return can_attack;
     }
 }
