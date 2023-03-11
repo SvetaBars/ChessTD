@@ -36,7 +36,7 @@ public class Empty extends Cell implements MouseListener {
             board.adding.setVisible(true);
         }
         else if(this.figure!=null){
-            ArrayList<Cell>new_can_attack = ((Tower)this.figure).CanAttack((Tower)this.figure);
+            ArrayList<Cell>new_can_attack = ((Tower)this.figure).CanAttack(this.figure.x, this.figure.y, null);
             for(Cell c : new_can_attack){
                 c.highlight();
             }

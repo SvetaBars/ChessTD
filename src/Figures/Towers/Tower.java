@@ -71,14 +71,23 @@ public class Tower extends Figure {
             attacked_enemy = null;
         }
     }
-    public ArrayList<Cell> CanAttack(Tower t){
+    public ArrayList<Cell> CanAttack(int x, int y, int [] fixed){
         ArrayList<Cell> can_attack = new ArrayList<Cell>();
         for (int[] xy : attack_matrix){
-            int new_x = t.x+xy[0];
-            int new_y = t.y+xy[1];
-            if(board.cells[new_x][new_y] instanceof Road && !(board.cells[new_x][new_y] instanceof Spawn)) {
-                can_attack.add(board.cells[new_x][new_y]);
+            if ((fixed!=null) && (fixed[0]!=xy[0] || fixed[1]!=xy[1])){
+                continue;
             }
+            int new_x = x + xy[0];
+            int new_y = y + xy[1];
+            if (board.CellIsValid(new_x, new_y)){
+                if (board.cells[new_x][new_y] instanceof Road && !(board.cells[new_x][new_y] instanceof Spawn)) {
+                    can_attack.add(board.cells[new_x][new_y]);
+                }
+                else if (can_move_further && (board.cells[new_x][new_y] instanceof Empty || (board.cells[new_x][new_y] instanceof Road && !(board.cells[new_x][new_y] instanceof Spawn)))) {
+                    ArrayList<Cell> c = CanAttack(new_x, new_y, xy);
+                    can_attack.addAll(c);
+                }
+        }
         }
         return can_attack;
     }
