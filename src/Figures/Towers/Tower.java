@@ -1,6 +1,6 @@
 package Figures.Towers;
 
-import Cells.Cell;
+import Cells.Castle;
 import Cells.Empty;
 import Cells.Road;
 import Cells.Spawn;
@@ -53,6 +53,7 @@ public class Tower extends Figure {
     public void Attack(){
         if(current_cooldown > 0) {
             current_cooldown--;
+            ShowProgress(current_cooldown,cooldown);
             return;
         }
         Point point = FindEnemy(x, y, null);
@@ -61,6 +62,7 @@ public class Tower extends Figure {
             MoveTo(point.x,point.y,false);
             attacked_enemy = (Enemy)board.cells[point.x][point.y].figure;
             current_cooldown = cooldown;
+            ShowProgress(current_cooldown,cooldown);
         }
     }
     public void FallBack(){
@@ -71,8 +73,8 @@ public class Tower extends Figure {
             attacked_enemy = null;
         }
     }
-    public ArrayList<Cell> CanAttack(int x, int y, int [] fixed){
-        ArrayList<Cell> can_attack = new ArrayList<Cell>();
+    public ArrayList<Road> CanAttack(int x, int y, int [] fixed){
+        ArrayList<Road> can_attack = new ArrayList<>();
         for (int[] xy : attack_matrix){
             if ((fixed!=null) && (fixed[0]!=xy[0] || fixed[1]!=xy[1])){
                 continue;
@@ -80,14 +82,14 @@ public class Tower extends Figure {
             int new_x = x + xy[0];
             int new_y = y + xy[1];
             if (board.CellIsValid(new_x, new_y)){
-                if (board.cells[new_x][new_y] instanceof Road && !(board.cells[new_x][new_y] instanceof Spawn)) {
-                    can_attack.add(board.cells[new_x][new_y]);
+                if (board.cells[new_x][new_y] instanceof Road && !(board.cells[new_x][new_y] instanceof Spawn) && !(board.cells[new_x][new_y] instanceof Castle)) {
+                    can_attack.add((Road)board.cells[new_x][new_y]);
                 }
-                else if (can_move_further && (board.cells[new_x][new_y] instanceof Empty || (board.cells[new_x][new_y] instanceof Road && !(board.cells[new_x][new_y] instanceof Spawn)))) {
-                    ArrayList<Cell> c = CanAttack(new_x, new_y, xy);
+                if (can_move_further && (board.cells[new_x][new_y] instanceof Empty || (board.cells[new_x][new_y] instanceof Road && !(board.cells[new_x][new_y] instanceof Spawn)))) {
+                    ArrayList<Road> c = CanAttack(new_x, new_y, xy);
                     can_attack.addAll(c);
                 }
-        }
+            }
         }
         return can_attack;
     }

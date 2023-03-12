@@ -13,6 +13,7 @@ public class Figure extends JPanel {
     public int x,y;
     protected Board board;
     protected boolean can_move_further;
+    protected JPanel indicator;
     public Figure(Board board, int x, int y) {
         this.board = board;
         this.x = x;
@@ -31,6 +32,11 @@ public class Figure extends JPanel {
         catch(IOException e) {
             System.out.println(e.getMessage());
         }
+
+        indicator = new JPanel();
+        indicator.setBackground(new Color(0,0,255));
+        ShowProgress(0,1);
+        add(indicator);
     }
 
     public void MoveTo(int _x, int _y, boolean real_move) {
@@ -66,5 +72,9 @@ public class Figure extends JPanel {
 
     public String GetImageName() {
         return "";
+    }
+
+    public void ShowProgress(int current, int max) {
+        indicator.setBounds(Cells.Cell.size-5,Cells.Cell.size*current/max,Cells.Cell.size,Cells.Cell.size);
     }
 }

@@ -8,6 +8,7 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 public class Empty extends Cell implements MouseListener {
+    ArrayList<Road> highlighted_cells;
     public Empty(Board board, int _x, int _y) {
         super(board,_x, _y);
         addMouseListener(this);
@@ -16,15 +17,29 @@ public class Empty extends Cell implements MouseListener {
     public void mouseClicked(MouseEvent e) {
     }
 
+    @Override
+    public void highlight(boolean on) {
+        if(on) {
+            Tower tower = (Tower)figure;
+            if(tower == null) tower = board.adding;
+            highlighted_cells = tower.CanAttack(x, y, null);
+            highlighted_cells.forEach(c->c.highlight(true));
+        }
+        else if(highlighted_cells != null){
+            highlighted_cells.forEach(c->c.highlight(false));
+            highlighted_cells = null;
+        }
+    }
+
     public void mousePressed(MouseEvent e) {
         if(board.adding != null) {
-            board.adding.MoveTo(x, y, true);
-            board.cells[x][y].figure = board.adding;
-            board.towers.add(board.adding);
-            board.adding = null;
+            board.BuyTower(this);
+            highlight(false);
         }
-        else if(this.figure!=null)
+        else if(this.figure!=null) {
             board.ShowTowerProperties((Tower)this.figure);
+            highlight(true);
+        }
     }
 
     public void mouseReleased(MouseEvent e) {
@@ -34,17 +49,14 @@ public class Empty extends Cell implements MouseListener {
         if(board.adding != null) {
             board.adding.setLocation(getLocation());
             board.adding.setVisible(true);
-        }
-        else if(this.figure!=null){
-            ArrayList<Cell>new_can_attack = ((Tower)this.figure).CanAttack(this.figure.x, this.figure.y, null);
-            for(Cell c : new_can_attack){
-                c.highlight();
-            }
+            highlight(true);
         }
     }
 
     public void mouseExited(MouseEvent e) {
-        if(board.adding != null)
+        if(board.adding != null) {
             board.adding.setVisible(false);
+            highlight(false);
+        }
     }
 }

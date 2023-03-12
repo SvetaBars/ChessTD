@@ -52,19 +52,20 @@ public class Board extends JFrame {
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         setLayout(null);
         toolbar = new JPanel();
+        toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.X_AXIS));
 
-        lives_label = new JLabel("Lives: ");
+        lives_label = new JLabel(new ImageIcon("images/heart.png"));
+        lives_label.setFont(new Font("Serif", Font.BOLD, 24));
         toolbar.add(lives_label);
-        money_label = new JLabel("Money: ");
+        toolbar.add(Box.createRigidArea(new Dimension(10,0)));
+        money_label = new JLabel(new ImageIcon("images/money.png"));
+        money_label.setFont(new Font("Serif", Font.BOLD, 24));
         toolbar.add(money_label);
-        wave_label = new JLabel("Wave: ");
+        toolbar.add(Box.createRigidArea(new Dimension(10,0)));
+        wave_label = new JLabel(new ImageIcon("images/sword.png"));
+        wave_label.setFont(new Font("Serif", Font.BOLD, 24));
         toolbar.add(wave_label);
-        JButton start = new JButton("Start");
-        toolbar.add(start);
-        start.addActionListener(e -> {
-            paused = !paused;
-            start.setText(paused?"Start":"Pause");
-        });
+        toolbar.add(Box.createRigidArea(new Dimension(10,0)));
         Stream.of("Pawn","Knight","Bishop","Rook","Queen").forEach(name->{
             try {
                 BufferedImage img = ImageIO.read(new File("images/white_"+name+".png"));
@@ -88,6 +89,13 @@ public class Board extends JFrame {
             } catch(Exception e) {
                 System.out.println(e.getMessage());
             }
+        });
+        JButton start = new JButton(new ImageIcon("images/start.png"));
+        toolbar.add(Box.createHorizontalGlue());
+        toolbar.add(start);
+        start.addActionListener(e -> {
+            paused = !paused;
+            start.setIcon(new ImageIcon(paused?"images/start.png":"images/pause.png"));
         });
         add(toolbar);
         pane = new JLayeredPane();
@@ -188,10 +196,19 @@ public class Board extends JFrame {
     }
 
     public void SpawnEnemies() {
-        if(current_wave>=level.getJsonArray("waves").size())
+        if(current_wave>=level.getJsonArray("waves").size()) {
+            if(enemies.size() == 0) {
+                paused = true;
+                GameOver(true);
+            }
             return;
-        if(current_wave_enemy>=level.getJsonArray("waves").getJsonObject(current_wave).getString("enemies").length())
-            return;
+        }
+        if(current_wave_enemy>=level.getJsonArray("waves").getJsonObject(current_wave).getString("enemies").length()) {
+            current_wave++;
+            current_wave_enemy = 0;
+            if(current_wave>=level.getJsonArray("waves").size())
+                return;
+        }
         Spawn spawner = spawners.get(current_spawner);
         if(spawner.figure != null) return;
         Enemy e = switch (level.getJsonArray("waves").getJsonObject(current_wave).getString("enemies").charAt(current_wave_enemy)) {
@@ -203,6 +220,7 @@ public class Board extends JFrame {
             default -> null;
         };
         if(e!=null) {
+            e.lives = level.getJsonArray("waves").getJsonObject(current_wave).getInt("lives",1);
             current_spawner = (current_spawner + 1) % spawners.size();
             current_wave_enemy++;
             pane.add(e,ENEMIES_LAYER);
@@ -234,10 +252,15 @@ public class Board extends JFrame {
         }
     }
     public void KillEnemy(Enemy e) {
-        e.setVisible(false);
-        cells[e.x][e.y].figure = null;
-        pane.remove(e);
-        enemies.remove(e);
+        e.hits++;
+        if(e.lives<=e.hits) {
+            e.setVisible(false);
+            cells[e.x][e.y].figure = null;
+            pane.remove(e);
+            enemies.remove(e);
+        }
+        else
+            e.ShowProgress(e.hits,e.lives);
         money+=e.cost;
     }
 
@@ -251,35 +274,66 @@ public class Board extends JFrame {
         pane.remove(e);
         cells[e.x][e.y].revalidate();
         lives--;
+        if(lives<=0) {
+            paused = true;
+            GameOver(false);
+        }
     }
 
     public void UpdateUI() {
-        lives_label.setText(String.format("Lives: %d", lives));
-        money_label.setText(String.format("Money: %d", money));
-        wave_label.setText(String.format("Wave: %d/%d", current_wave+1, level.getJsonArray("waves").size()));
+        lives_label.setText(String.format("%d", lives));
+        money_label.setText(String.format("%d", money));
+        wave_label.setText(String.format("%d/%d", current_wave+1, level.getJsonArray("waves").size()));
     }
 
+    public void HideTowerProperties(Tower tower, JPanel props) {
+        props.setVisible(false);
+        pane.remove(props);
+        cells[tower.x][tower.y].highlight(false);
+    }
     public void ShowTowerProperties(Tower tower) {
         JPanel props = new JPanel();
+        props.setLayout(new BoxLayout(props,BoxLayout.X_AXIS));
         props.add(new JLabel(tower.getClass().getSimpleName()));
         JButton sell = new JButton("Sell");
         sell.addActionListener(e -> {
-            props.setVisible(false);
+            HideTowerProperties(tower,props);
             tower.setVisible(false);
             money += tower.cost;
             cells[tower.x][tower.y].figure = null;
             towers.remove(tower);
             pane.remove(tower);
-            pane.remove(props);
         });
+        props.add(Box.createRigidArea(new Dimension(10,0)));
         props.add(sell);
+        props.add(Box.createHorizontalGlue());
+        JButton close = new JButton("Close");
+        close.addActionListener(e -> HideTowerProperties(tower,props));
+        props.add(close);
         int x = (tower.x+1)*Cell.size;
         int y = (tower.y+1)*Cell.size;
-        props.setSize(150,50);
+        props.setSize(200,50);
         if(x+props.getWidth() > pane.getWidth()) x=pane.getWidth()-props.getWidth();
         if(y+props.getHeight() > pane.getHeight()) y=pane.getHeight()-props.getHeight();
         props.setLocation(x,y);
         props.setVisible(true);
         pane.add(props, PROPS_LAYER);
+    }
+
+    public void BuyTower(Cell cell) {
+        if(adding.cost <= money) {
+            money -= adding.cost;
+            adding.MoveTo(cell.x, cell.y, true);
+            cells[cell.x][cell.y].figure = adding;
+            towers.add(adding);
+        }
+        else
+            adding.setVisible(false);
+        adding = null;
+    }
+
+    public void GameOver(boolean win) {
+        new GameOver(win,title,level).setVisible(true);
+        dispose();
     }
 }

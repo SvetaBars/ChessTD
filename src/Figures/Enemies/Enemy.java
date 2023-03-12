@@ -9,8 +9,14 @@ import java.awt.*;
 public class Enemy extends Figure {
     protected int[][] move_matrix;
     public int cost;
+    public int lives;
+    public int hits;
     public Enemy(Board board, int x, int y){
         super(board, x, y);
+        indicator.setBackground(new Color(0,255,0));
+        cost = 1;
+        lives = 1;
+        hits = 0;
     }
 
     @Override

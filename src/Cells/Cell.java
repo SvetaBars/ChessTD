@@ -30,10 +30,11 @@ public class Cell extends JPanel {
     protected boolean is_black() {
         return (x+y)%2!=0;
     }
-    public void highlight(){
-        setBackground(getBackground().brighter());
-    }
-    public void unhighlight(){
-        setBackground(getBackground().darker());
+
+    public void highlight(boolean on){
+        if(on)
+            setBackground(is_black() ? new Color(200,200,0) : new Color(255,255,0));
+        else
+            setBackground(is_black() ? getBlack() : getWhite());
     }
 }
