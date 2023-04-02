@@ -12,13 +12,17 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class Tower extends Figure {
-    int cooldown;
+    public int upgrade_count;
+    public int cooldown;
     int current_cooldown;
+    public int hits;
+    public int kills;
     public int cost;
     Enemy attacked_enemy;
     protected int[][] attack_matrix;
     public Tower(Board board, int x, int y){
         super(board, x, y);
+        upgrade_count = 0;
     }
 
     @Override
@@ -63,13 +67,14 @@ public class Tower extends Figure {
             attacked_enemy = (Enemy)board.cells[point.x][point.y].figure;
             current_cooldown = cooldown;
             ShowProgress(current_cooldown,cooldown);
+            hits++;
         }
     }
     public void FallBack(){
         if(attacked_enemy != null) {
             ((Road)board.cells[attacked_enemy.x][attacked_enemy.y]).attacked = false;
             MoveTo(x, y,false);
-            board.KillEnemy(attacked_enemy);
+            if(board.KillEnemy(attacked_enemy)) kills++;
             attacked_enemy = null;
         }
     }
@@ -85,7 +90,7 @@ public class Tower extends Figure {
                 if (board.cells[new_x][new_y] instanceof Road && !(board.cells[new_x][new_y] instanceof Spawn) && !(board.cells[new_x][new_y] instanceof Castle)) {
                     can_attack.add((Road)board.cells[new_x][new_y]);
                 }
-                if (can_move_further && (board.cells[new_x][new_y] instanceof Empty || (board.cells[new_x][new_y] instanceof Road && !(board.cells[new_x][new_y] instanceof Spawn)))) {
+                if (can_move_further && ((board.cells[new_x][new_y] instanceof Empty && board.cells[new_x][new_y].figure==null) || (board.cells[new_x][new_y] instanceof Road && !(board.cells[new_x][new_y] instanceof Spawn)))) {
                     ArrayList<Road> c = CanAttack(new_x, new_y, xy);
                     can_attack.addAll(c);
                 }

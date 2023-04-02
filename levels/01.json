@@ -1,7 +1,7 @@
 {
   "name": "Level 1",
   "lives": 10,
-  "money":10,
+  "money":20,
   "map": [
     "            ",
     " .......... ",

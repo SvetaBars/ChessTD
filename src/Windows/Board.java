@@ -33,6 +33,8 @@ public class Board extends JFrame {
     int current_wave_enemy;
     int lives;
     int money;
+    JPanel tower_props;
+    Tower editing_tower;
     JLabel lives_label;
     JLabel money_label;
     JLabel wave_label;
@@ -69,18 +71,15 @@ public class Board extends JFrame {
         Stream.of("Pawn","Knight","Bishop","Rook","Queen").forEach(name->{
             try {
                 BufferedImage img = ImageIO.read(new File("images/white_"+name+".png"));
-                JButton add_it = new JButton(new ImageIcon(img));
+                Tower get_cost = makeTower(name);
+                JButton add_it = new JButton(Integer.toString(get_cost.cost), new ImageIcon(img));
+                add_it.setHorizontalTextPosition(SwingConstants.CENTER);
+                add_it.setVerticalTextPosition(SwingConstants.BOTTOM);
+                add_it.setIconTextGap(-7);
                 add_it.setMargin(new Insets(0,0,0,0));
                 toolbar.add(add_it);
                 add_it.addActionListener(e->{
-                    adding = switch (name) {
-                        case "Pawn" -> new Figures.Towers.Pawn(this,0,0);
-                        case "Knight" -> new Figures.Towers.Knight(this,0,0);
-                        case "Bishop" -> new Figures.Towers.Bishop(this,0,0);
-                        case "Rook" -> new Figures.Towers.Rook(this,0,0);
-                        case "Queen" -> new Figures.Towers.Queen(this,0,0);
-                        default -> null;
-                    };
+                    adding = makeTower(name);
                     if(adding!=null) {
                         adding.setVisible(false);
                         pane.add(adding,TOWERS_LAYER);
@@ -106,6 +105,17 @@ public class Board extends JFrame {
         paused = true;
         UpdateUI();
         Run();
+    }
+
+    Tower makeTower(String name) {
+        return switch (name) {
+            case "Pawn" -> new Figures.Towers.Pawn(this,0,0);
+            case "Knight" -> new Figures.Towers.Knight(this,0,0);
+            case "Bishop" -> new Figures.Towers.Bishop(this,0,0);
+            case "Rook" -> new Figures.Towers.Rook(this,0,0);
+            case "Queen" -> new Figures.Towers.Queen(this,0,0);
+            default -> null;
+        };
     }
 
     protected void processWindowEvent(final WindowEvent e) {
@@ -221,6 +231,7 @@ public class Board extends JFrame {
         };
         if(e!=null) {
             e.lives = level.getJsonArray("waves").getJsonObject(current_wave).getInt("lives",1);
+            e.cost = e.lives;
             current_spawner = (current_spawner + 1) % spawners.size();
             current_wave_enemy++;
             pane.add(e,ENEMIES_LAYER);
@@ -246,22 +257,25 @@ public class Board extends JFrame {
             t.Attack();
         }
     }
-    public void FallBackTowers() {
-        for(Tower t: towers) {
-            t.FallBack();
-        }
-    }
-    public void KillEnemy(Enemy e) {
+    public boolean KillEnemy(Enemy e) {
         e.hits++;
         if(e.lives<=e.hits) {
             e.setVisible(false);
             cells[e.x][e.y].figure = null;
             pane.remove(e);
             enemies.remove(e);
+            money+=e.cost;
+            return true;
         }
-        else
+        else {
             e.ShowProgress(e.hits,e.lives);
-        money+=e.cost;
+            return false;
+        }
+    }
+    public void FallBackTowers() {
+        for(Tower t: towers) {
+            t.FallBack();
+        }
     }
 
     public Boolean CellIsValid(int x, int y) {
@@ -286,38 +300,61 @@ public class Board extends JFrame {
         wave_label.setText(String.format("%d/%d", current_wave+1, level.getJsonArray("waves").size()));
     }
 
-    public void HideTowerProperties(Tower tower, JPanel props) {
-        props.setVisible(false);
-        pane.remove(props);
-        cells[tower.x][tower.y].highlight(false);
+    public void HideTowerProperties() {
+        if(tower_props == null) return;
+        tower_props.setVisible(false);
+        pane.remove(tower_props);
+        cells[editing_tower.x][editing_tower.y].highlight(false);
     }
     public void ShowTowerProperties(Tower tower) {
-        JPanel props = new JPanel();
-        props.setLayout(new BoxLayout(props,BoxLayout.X_AXIS));
-        props.add(new JLabel(tower.getClass().getSimpleName()));
+        HideTowerProperties();
+        editing_tower = tower;
+        tower_props = new JPanel();
+        tower_props.setLayout(new BorderLayout());
+        JLabel header = new JLabel(tower.getClass().getSimpleName());
+        header.setHorizontalAlignment(SwingConstants.CENTER);
+        header.setBackground(new Color(140, 140, 255));
+        header.setOpaque(true);
+        tower_props.add(header, BorderLayout.PAGE_START);
+
+        int upgrade_cost = editing_tower.cost*(1+editing_tower.upgrade_count);
+        JButton upgrade = new JButton("Upgrade "+upgrade_cost);
+        upgrade.addActionListener(e -> {
+            if(money>=upgrade_cost && editing_tower.cooldown>1) {
+                editing_tower.cooldown--;
+                money-=upgrade_cost;
+                editing_tower.upgrade_count++;
+                int new_upgrade_cost = editing_tower.cost*(1+editing_tower.upgrade_count);
+                upgrade.setText("Upgrade "+new_upgrade_cost);
+            }
+        });
+        tower_props.add(upgrade,BorderLayout.LINE_START);
+
+        JLabel stat = new JLabel(String.format("Hits: %d, Kills: %d",tower.hits,tower.kills));
+        stat.setHorizontalAlignment(SwingConstants.CENTER);
+        tower_props.add(stat,BorderLayout.CENTER);
+
         JButton sell = new JButton("Sell");
         sell.addActionListener(e -> {
-            HideTowerProperties(tower,props);
+            HideTowerProperties();
             tower.setVisible(false);
             money += tower.cost;
             cells[tower.x][tower.y].figure = null;
             towers.remove(tower);
             pane.remove(tower);
         });
-        props.add(Box.createRigidArea(new Dimension(10,0)));
-        props.add(sell);
-        props.add(Box.createHorizontalGlue());
+        tower_props.add(sell,BorderLayout.LINE_END);
         JButton close = new JButton("Close");
-        close.addActionListener(e -> HideTowerProperties(tower,props));
-        props.add(close);
+        close.addActionListener(e -> HideTowerProperties());
+        tower_props.add(close,BorderLayout.PAGE_END);
         int x = (tower.x+1)*Cell.size;
         int y = (tower.y+1)*Cell.size;
-        props.setSize(200,50);
-        if(x+props.getWidth() > pane.getWidth()) x=pane.getWidth()-props.getWidth();
-        if(y+props.getHeight() > pane.getHeight()) y=pane.getHeight()-props.getHeight();
-        props.setLocation(x,y);
-        props.setVisible(true);
-        pane.add(props, PROPS_LAYER);
+        tower_props.setSize(240,80);
+        if(x+tower_props.getWidth() > pane.getWidth()) x=pane.getWidth()-tower_props.getWidth();
+        if(y+tower_props.getHeight() > pane.getHeight()) y=pane.getHeight()-tower_props.getHeight();
+        tower_props.setLocation(x,y);
+        tower_props.setVisible(true);
+        pane.add(tower_props, PROPS_LAYER);
     }
 
     public void BuyTower(Cell cell) {
