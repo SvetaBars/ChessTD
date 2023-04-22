@@ -32,7 +32,7 @@ public class Empty extends Cell implements MouseListener {
     }
 
     public void mousePressed(MouseEvent e) {
-        if(board.adding != null) {
+        if(board.adding != null && this.figure==null) {
             board.BuyTower(this);
             highlight(false);
         }
@@ -46,7 +46,7 @@ public class Empty extends Cell implements MouseListener {
     }
 
     public void mouseEntered(MouseEvent e) {
-        if(board.adding != null) {
+        if(board.adding != null && this.figure==null) {
             board.adding.setLocation(getLocation());
             board.adding.setVisible(true);
             highlight(true);
